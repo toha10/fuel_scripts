@@ -51,40 +51,44 @@ def validIP(address):
             return False
     return True
 
-session = Session()
+def main():
+    session = Session()
 
-print "Choose ID of your cluster:"
-print "ID\tName"
-id_list = []
-for instance in session.query(Clusters):
-    id_list.append(instance.id)
-    print instance
-mycluster_id=None
-while mycluster_id not in id_list:
-    try:	
-        mycluster_id = int(raw_input("answer: "))
-    except:
-        print "You typed not a correct number"
+    print "Choose ID of your cluster:"
+    print "ID\tName"
+    id_list = []
+    for instance in session.query(Clusters):
+        id_list.append(instance.id)
+        print instance
+    mycluster_id=None
+    while mycluster_id not in id_list:
+        try:	
+            mycluster_id = int(raw_input("answer: "))
+        except:
+            print "You typed not a correct number"
 
-print "Current public range:"
-for i, j in session.query(Ip_addr_ranges, Network_groups).join(Network_groups).\
-    filter(Network_groups.cluster_id==mycluster_id).filter(Network_groups.name=='public'):
-    print "first: " + i.first + "\t" + "last: " + i.last
-    meta = json.loads(j.meta)
-    new_first = raw_input("type new first: ")
-    if validIP(new_first):
-        i.first = new_first
-        meta["ip_range"][0] = new_first 
-	print "You have changed first ip: " + i.first
-    else:
-        print "You have typed incorrect value and first ip hasn't changed"
-    new_last = raw_input("type new last: ")
-    if validIP(new_last):
-        i.last = new_last
-        meta["ip_range"][1] = new_last 
-	print "You have changed last ip: " + i.last
-    else:
-        print "You have typed incorrect value and last ip hasn't changed"
-    j.meta = json.dumps(meta)
+    print "Current public range:"
+    for i, j in session.query(Ip_addr_ranges, Network_groups).join(Network_groups).\
+        filter(Network_groups.cluster_id==mycluster_id).filter(Network_groups.name=='public'):
+        print "first: " + i.first + "\t" + "last: " + i.last
+        meta = json.loads(j.meta)
+        new_first = raw_input("type new first: ")
+        if validIP(new_first):
+            i.first = new_first
+            meta["ip_range"][0] = new_first 
+	    print "You have changed first ip: " + i.first
+        else:
+            print "You have typed incorrect value and first ip hasn't changed"
+        new_last = raw_input("type new last: ")
+        if validIP(new_last):
+            i.last = new_last
+            meta["ip_range"][1] = new_last 
+	    print "You have changed last ip: " + i.last
+        else:
+            print "You have typed incorrect value and last ip hasn't changed"
+        j.meta = json.dumps(meta)
     
-session.commit()
+    session.commit()
+
+if __name__ == "__main__":
+    main()
